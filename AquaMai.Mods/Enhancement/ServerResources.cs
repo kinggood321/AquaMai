@@ -81,7 +81,14 @@ public class ServerResources
 #if DEBUG
             MelonLogger.Msg("[ServerResources] Invalid signature for existed file");
 #endif
-            File.Delete(cacheFile);
+            try
+            {
+                File.Delete(cacheFile);
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         blinktimer.Start();
@@ -153,21 +160,53 @@ public class ServerResources
         if (!VerifySignature(bytes, _entry.sign))
         {
             MelonLogger.Warning("[ServerResources] Invalid signature for file");
-            // yield break;
+            yield break;
         }
 
-        // 没有文件夹就新建
-        if (!Directory.Exists(Path.GetDirectoryName(cacheFile)))
+        try
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(cacheFile));
+            // 没有文件夹就新建
+            if (!Directory.Exists(Path.GetDirectoryName(cacheFile)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(cacheFile));
+            }
+            File.WriteAllBytes(cacheFile, bytes);
+            LoadFile();
         }
-        File.WriteAllBytes(cacheFile, bytes);
-        LoadFile();
+        catch
+        {
+            LoadBytes(bytes);
+        }
     }
 
     private static void LoadFile()
     {
-        bundle = AssetBundle.LoadFromFile(Path.Combine(Environment.CurrentDirectory, cacheFile));
+        try
+        {
+            bundle = AssetBundle.LoadFromFile(Path.Combine(Environment.CurrentDirectory, cacheFile));
+            LoadFromAssetBundle();
+        }
+        catch
+        {
+            // ignored
+        }
+    }
+
+    private static void LoadBytes(byte[] bytes)
+    {
+        try
+        {
+            bundle = AssetBundle.LoadFromMemory(bytes);
+            LoadFromAssetBundle();
+        }
+        catch
+        {
+            // ignored
+        }
+    }
+
+    private static void LoadFromAssetBundle()
+    {
         if (bundle == null)
         {
             MelonLogger.Error($"[ServerResources] Failed to load asset bundle from {Path.Combine(Environment.CurrentDirectory, cacheFile)}");
