@@ -4,6 +4,7 @@ using AquaMai.Config.Attributes;
 using AquaMai.Config.Types;
 using AquaMai.Core.Helpers;
 using AquaMai.Core.Resources;
+using AquaMai.Mods.UX.PracticeMode;
 using HarmonyLib;
 using Manager;
 using MelonLoader;
@@ -22,6 +23,8 @@ public static class DisplayTouchInGame
 {
     private static GameObject prefab;
     private static GameObject[] canvasGameObjects = new GameObject[2];
+    private static TextMeshProUGUI tmp;
+    private static TextMeshProUGUI[] tmps = new TextMeshProUGUI[2];
 
     [ConfigEntry(
         zh: "将上屏改成白底",
@@ -37,6 +40,13 @@ public static class DisplayTouchInGame
     [ConfigEntry] private static readonly bool longPress = false;
 
     [HarmonyPostfix]
+    [HarmonyPatch(typeof(CommonMonitor), "HideDebugInfoText")]
+    public static void CommonMonitorInitialize(TextMeshProUGUI ____romVersionText)
+    {
+        tmp = ____romVersionText;
+    }
+
+    [HarmonyPostfix]
     [HarmonyPatch(typeof(MusicSelectProcess), nameof(MusicSelectProcess.OnUpdate))]
     public static void OnMusicSelectProcessUpdate()
     {
@@ -49,6 +59,13 @@ public static class DisplayTouchInGame
     [HarmonyPatch(typeof(GameProcess), nameof(GameProcess.OnUpdate))]
     public static void OnGameProcessUpdate()
     {
+        if (whiteBackground && defaultOn)
+        {
+            foreach (var t in tmps)
+            {
+                t.text = $"{TimeSpan.FromMilliseconds(PracticeMode.CurrentPlayMsec):mm\\:ss\\.fff}";
+            }
+        }
         if (!KeyListener.GetKeyDownOrLongPress(key, longPress)) return;
         defaultOn = !defaultOn;
         foreach (var go in canvasGameObjects)
@@ -102,6 +119,12 @@ public static class DisplayTouchInGame
                 rect.localPosition = new Vector3(0f, 0f, 0.1f);
                 var img = canvas.AddComponent<Image>();
                 img.color = Color.white;
+
+                var t = Object.Instantiate(tmp, canvas.transform, false);
+                t.text = "";
+                t.transform.localPosition = new Vector3(-500f, 0f, 0f);
+                t.transform.localScale = Vector3.one * 2;
+                tmps[i] = t;
             }
 
             var buttons = new GameObject("Buttons");
@@ -141,19 +164,15 @@ public static class DisplayTouchInGame
         public bool isButton;
 
         private List<CustomGraphic> _buttonList;
-
-        private Color _offTouchCol;
-
-        private Color _onTouchCol;
+        private Color _offTouchCol = new Color(0f, 0f, 1f);
+        private Color _onTouchCol = new Color(1f, 0f, 0f);
 
         private void Start()
         {
-            _offTouchCol = new Color(0f, 0f, 1f, whiteBackground ? 1f : 0.6f);
             if (isButton)
             {
                 _offTouchCol = Color.clear;
             }
-            _onTouchCol = new Color(1f, 0f, 0f, whiteBackground ? 1f : 0.6f);
             _buttonList = new List<CustomGraphic>();
             foreach (Transform item in transform)
             {
