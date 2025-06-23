@@ -62,6 +62,7 @@
 调试:
   - GameSystem.Window
   - Utils.AntiLag
+  - Utils.DisplayTouchInGame
   - GameSettings.JudgeAdjust
   - Tweaks.IgnoreAimeServerError
   - Utils.ShowNetErrorDetail
