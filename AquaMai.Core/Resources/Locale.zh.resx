@@ -128,4 +128,10 @@
     <data name="NoAmDaemonAlertTitle" xml:space="preserve">
         <value>黑屏，是吗？为什么呢？</value>
     </data>
+    <data name="NextPlayShowTouchDisplay" xml:space="preserve">
+        <value>游戏开始后副屏将显示触摸状态</value>
+    </data>
+    <data name="NextPlayHideTouchDisplay" xml:space="preserve">
+        <value>已禁用触摸状态显示</value>
+    </data>
 </root>

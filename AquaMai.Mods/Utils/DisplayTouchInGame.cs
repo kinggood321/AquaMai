@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using AquaMai.Config.Attributes;
+using AquaMai.Config.Types;
+using AquaMai.Core.Helpers;
+using AquaMai.Core.Resources;
 using HarmonyLib;
 using Manager;
 using MelonLoader;
@@ -18,11 +21,44 @@ namespace AquaMai.Mods.Utils;
 public static class DisplayTouchInGame
 {
     private static GameObject prefab;
+    private static GameObject[] canvasGameObjects = new GameObject[2];
 
     [ConfigEntry(
         zh: "将上屏改成白底",
         en: "Display white background on top screen")]
     public static bool whiteBackground = false;
+
+    [ConfigEntry(
+        zh: "默认显示。关了的话，可以用按键切换显示")]
+    public static bool defaultOn = true;
+
+    [ConfigEntry(zh: "按键切换显示")]
+    public static readonly KeyCodeOrName key = KeyCodeOrName.None;
+    [ConfigEntry] private static readonly bool longPress = false;
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(MusicSelectProcess), nameof(MusicSelectProcess.OnUpdate))]
+    public static void OnMusicSelectProcessUpdate()
+    {
+        if (!KeyListener.GetKeyDownOrLongPress(key, longPress)) return;
+        defaultOn = !defaultOn;
+        MessageHelper.ShowMessage(defaultOn ? Locale.NextPlayShowTouchDisplay : Locale.NextPlayHideTouchDisplay);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameProcess), nameof(GameProcess.OnUpdate))]
+    public static void OnGameProcessUpdate()
+    {
+        if (!KeyListener.GetKeyDownOrLongPress(key, longPress)) return;
+        defaultOn = !defaultOn;
+        foreach (var go in canvasGameObjects)
+        {
+            if (go != null)
+            {
+                go.SetActive(defaultOn);
+            }
+        }
+    }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(InputManager), nameof(InputManager.RegisterMouseTouchPanel))]
@@ -56,6 +92,8 @@ public static class DisplayTouchInGame
             }
             var canvas = new GameObject("[AquaMai] DisplayTouchInGame");
             canvas.transform.SetParent(sub, false);
+            canvas.SetActive(defaultOn);
+            canvasGameObjects[i] = canvas;
 
             if (whiteBackground)
             {

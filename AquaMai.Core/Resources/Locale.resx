@@ -135,4 +135,10 @@ If the window has disappeared, then there might be some issues with your configu
 Maybe the window is there, but it's constantly scrolling errors. If that's the case, then there might also be some configuration issues.
 You can try to solve it yourself. If not, then ask your friends in the community or someone nearby who knows how to fix it.</value>
     </data>
+    <data name="NextPlayShowTouchDisplay" xml:space="preserve">
+        <value>Will show Touch Display in game</value>
+    </data>
+    <data name="NextPlayHideTouchDisplay" xml:space="preserve">
+        <value>Touch Display disabled</value>
+    </data>
 </root>

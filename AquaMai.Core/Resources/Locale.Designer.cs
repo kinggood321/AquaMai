@@ -152,6 +152,24 @@ namespace AquaMai.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Touch Display disabled.
+        /// </summary>
+        public static string NextPlayHideTouchDisplay {
+            get {
+                return ResourceManager.GetString("NextPlayHideTouchDisplay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Will show Touch Display in game.
+        /// </summary>
+        public static string NextPlayShowTouchDisplay {
+            get {
+                return ResourceManager.GetString("NextPlayShowTouchDisplay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Did you double-click Sinmai.exe directly? That&apos;s not how it works. There should be something called &quot;start.bat&quot; or &quot;启动.bat&quot;, and you need to use it to start.
         ///Check if your AMDaemon is still alive (look for a command line window called AMDaemon.exe running in the background).
         ///If the window has disappeared, then there might be some issues with your configuration. Please check your segatools.ini carefully.
