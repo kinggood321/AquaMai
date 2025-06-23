@@ -37,7 +37,7 @@ public static class DisplayTouchInGame
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameProcess), nameof(GameProcess.OnStart))]
-    public static void OnGameStart(GameProcess __instance, GameMonitor[] ____monitors)
+    public static void OnGameStart(GameMonitor[] ____monitors)
     {
         MelonLogger.Msg("[DisplayTouchInGame] OnGameStart");
         if (prefab == null)
@@ -65,28 +65,42 @@ public static class DisplayTouchInGame
                 var img = canvas.AddComponent<Image>();
                 img.color = Color.white;
             }
-            
+
+            var buttons = new GameObject("Buttons");
+            buttons.transform.SetParent(canvas.transform, false);
+            buttons.transform.localPosition = new Vector3(0f, 0f, 0.2f);
+            buttons.transform.localScale = Vector3.one * 450 / 1080f;
+
             var touchPanel = Object.Instantiate(prefab, canvas.transform, false);
             Object.Destroy(touchPanel.GetComponent<MouseTouchPanel>());
             foreach (Transform item in touchPanel.transform)
             {
                 Object.Destroy(item.GetComponent<MeshButton>());
                 Object.Destroy(item.GetComponent<Collider>());
+                if (item.name.StartsWith("A"))
+                {
+                    var btn = Object.Instantiate(item, buttons.transform, false);
+                    btn.name = item.name;
+                }
                 var customGraphic = item.GetComponent<CustomGraphic>();
                 customGraphic.color = Color.blue;
                 var tmp = item.GetComponentInChildren<TextMeshProUGUI>();
                 tmp.color = Color.black;
             }
-            touchPanel.transform.localScale = Vector3.one * 450 / 1080f;
-            touchPanel.transform.localPosition = new Vector3(0f, 0f, 0.2f);
-            var display = touchPanel.AddComponent<Display>();
-            display.player = i;
+            touchPanel.transform.localScale = Vector3.one * 0.95f * 450 / 1080f;
+            touchPanel.transform.localPosition = new Vector3(0f, 0f, 0.3f);
+            var touchDisplay = touchPanel.AddComponent<Display>();
+            touchDisplay.player = i;
+            var buttonDisplay = buttons.AddComponent<Display>();
+            buttonDisplay.player = i;
+            buttonDisplay.isButton = true;
         }
     }
 
     private class Display : MonoBehaviour
     {
         public int player;
+        public bool isButton;
 
         private List<CustomGraphic> _buttonList;
 
@@ -97,6 +111,10 @@ public static class DisplayTouchInGame
         private void Start()
         {
             _offTouchCol = new Color(0f, 0f, 1f, whiteBackground ? 1f : 0.6f);
+            if (isButton)
+            {
+                _offTouchCol = Color.clear;
+            }
             _onTouchCol = new Color(1f, 0f, 0f, whiteBackground ? 1f : 0.6f);
             _buttonList = new List<CustomGraphic>();
             foreach (Transform item in transform)
@@ -111,7 +129,14 @@ public static class DisplayTouchInGame
             foreach (CustomGraphic graphic in _buttonList)
             {
                 if (!Enum.TryParse(graphic.name, out InputManager.TouchPanelArea button)) return;
-                graphic.color = (InputManager.GetTouchPanelAreaPush(player, button) ? _onTouchCol : _offTouchCol);
+                if (isButton)
+                {
+                    graphic.color = (InputManager.GetButtonPush(player, (InputManager.ButtonSetting)button) ? _onTouchCol : _offTouchCol);
+                }
+                else
+                {
+                    graphic.color = (InputManager.GetTouchPanelAreaPush(player, button) ? _onTouchCol : _offTouchCol);
+                }
             }
         }
     }
