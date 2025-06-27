@@ -17,37 +17,29 @@ namespace AquaMai.Mods.GameSystem;
     zh: "使用 ADX HID 固件的自定义输入（如果你没有使用 ADX 的 HID 固件，请不要启用。启用时请务必删除现有 HID 相关 DLL）")]
 public class AdxHidInput
 {
-    private static HidDevice adxController1P = null;
-    private static HidDevice adxController2P = null;
-    private static byte[] inputBuf1P = new byte[32];
-    private static byte[] inputBuf2P = new byte[32];
+    private static HidDevice[] adxController = new HidDevice[2];
+    private static byte[,] inputBuf = new byte[2, 32];
 
-    private static void HidInputThread()
+    private static void HidInputThread(int p)
     {
         while (true)
         {
-            if (adxController1P != null)
+            if (adxController[p] == null) continue;
+            var report1P = adxController[p].Read();
+            if (report1P.Status != HidDeviceData.ReadStatus.Success || report1P.Data.Length <= 13) continue;
+            for (int i = 0; i < 13; i++)
             {
-                var report1P = adxController1P.Read();
-                if (report1P.Status == HidDeviceData.ReadStatus.Success && report1P.Data.Length > 13)
-                    inputBuf1P = report1P.Data;
-            }
-
-            if (adxController2P != null)
-            {
-                var report2P = adxController2P.Read();
-                if (report2P.Status == HidDeviceData.ReadStatus.Success && report2P.Data.Length > 13)
-                    inputBuf2P = report2P.Data;
+                inputBuf[p, i] = report1P.Data[i];
             }
         }
     }
 
     public static void OnBeforePatch()
     {
-        adxController1P = HidDevices.Enumerate(0x2E3C, 0x5750).FirstOrDefault();
-        adxController2P = HidDevices.Enumerate(0x2E4C, 0x5750).FirstOrDefault();
+        adxController[0] = HidDevices.Enumerate(0x2E3C, 0x5750).FirstOrDefault();
+        adxController[1] = HidDevices.Enumerate(0x2E4C, 0x5750).FirstOrDefault();
 
-        if (adxController1P == null)
+        if (adxController[0] == null)
         {
             MelonLogger.Msg("[HidInput] Open HID 1P Failed");
         }
@@ -56,7 +48,7 @@ public class AdxHidInput
             MelonLogger.Msg("[HidInput] Open HID 1P OK");
         }
 
-        if (adxController2P == null)
+        if (adxController[1] == null)
         {
             MelonLogger.Msg("[HidInput] Open HID 2P Failed");
         }
@@ -65,9 +57,11 @@ public class AdxHidInput
             MelonLogger.Msg("[HidInput] Open HID 2P OK");
         }
 
-        if (adxController1P != null || adxController2P != null)
+        for (int i = 0; i < 2; i++)
         {
-            Thread hidThread = new Thread(HidInputThread);
+            if (adxController[i] == null) continue;
+            var p = i;
+            Thread hidThread = new Thread(() => HidInputThread(p));
             hidThread.Start();
         }
     }
@@ -102,7 +96,7 @@ public class AdxHidInput
             {
                 if (arr[i] != current) continue;
                 var keyIndex = 10 + i;
-                if (inputBuf1P[keyIndex] == 1 || inputBuf2P[keyIndex] == 1)
+                if (inputBuf[0, keyIndex] == 1 || inputBuf[1, keyIndex] == 1)
                 {
                     return true;
                 }
@@ -110,17 +104,16 @@ public class AdxHidInput
             return false;
         }
 
-        var buf = playerNo == 0 ? inputBuf1P : inputBuf2P;
         return inputId.Value switch
         {
-            "button_01" => buf[5] == 1,
-            "button_02" => buf[4] == 1,
-            "button_03" => buf[3] == 1,
-            "button_04" => buf[2] == 1,
-            "button_05" => buf[9] == 1,
-            "button_06" => buf[8] == 1,
-            "button_07" => buf[7] == 1,
-            "button_08" => buf[6] == 1,
+            "button_01" => inputBuf[playerNo, 5] == 1,
+            "button_02" => inputBuf[playerNo, 4] == 1,
+            "button_03" => inputBuf[playerNo, 3] == 1,
+            "button_04" => inputBuf[playerNo, 2] == 1,
+            "button_05" => inputBuf[playerNo, 9] == 1,
+            "button_06" => inputBuf[playerNo, 8] == 1,
+            "button_07" => inputBuf[playerNo, 7] == 1,
+            "button_08" => inputBuf[playerNo, 6] == 1,
             _ => false,
         };
     }
