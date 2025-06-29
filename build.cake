@@ -8,7 +8,7 @@ Task("Restore")
     .Does(() =>
 {
     // 运行 dotnet restore
-    DotNetRestore("./AquaMai.sln");
+    DotNetRestore("./AquaMai.slnx");
 });
 
 Task("PreBuild")
@@ -48,7 +48,7 @@ Task("Build")
     .Does(() =>
 {
     // 使用 dotnet build 进行构建
-    DotNetBuild("./AquaMai.sln", new DotNetBuildSettings
+    DotNetBuild("./AquaMai.slnx", new DotNetBuildSettings
     {
         Configuration = configuration
     });
