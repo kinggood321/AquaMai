@@ -27,7 +27,7 @@ public class AdxHidInput
             if (adxController[p] == null) continue;
             var report1P = adxController[p].Read();
             if (report1P.Status != HidDeviceData.ReadStatus.Success || report1P.Data.Length <= 13) continue;
-            for (int i = 0; i < 13; i++)
+            for (int i = 0; i < 14; i++)
             {
                 inputBuf[p, i] = report1P.Data[i];
             }
