@@ -1,8 +1,10 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using AquaMai.Core;
 using AquaMai.Core.Attributes;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Helpers;
 using AquaMai.Mods.Fancy.GamePlay;
 using HarmonyLib;
 using MAI2.Util;
@@ -78,10 +80,17 @@ public partial class SinglePlayer
         TimeManager.MarkGameStartTime();
         Singleton<EventManager>.Instance.UpdateEvent();
         Singleton<ScoreRankingManager>.Instance.UpdateData();
+        SharedInstances.GameMainObject.StartCoroutine(LaterDisableCardReader());
         __instance.Process.CreateDownloadProcess();
         __instance.ProcessManager.SendMessage(new Message(ProcessType.CommonProcess, 30001));
         __instance.ProcessManager.SendMessage(new Message(ProcessType.CommonProcess, 40000, 0, OperationInformationController.InformationType.Hide));
         __instance.Process.SetNextProcess();
+    }
+
+    private static IEnumerator LaterDisableCardReader()
+    {
+        yield return new WaitForSeconds(3);
+        SingletonStateMachine<AmManager, AmManager.EState>.Instance.AimeReader.EnableRead(flag: false);
     }
 
     // To prevent the "長押受付終了" overlay from appearing
