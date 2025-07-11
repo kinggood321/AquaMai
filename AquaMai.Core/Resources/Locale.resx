@@ -141,4 +141,7 @@ You can try to solve it yourself. If not, then ask your friends in the community
     <data name="NextPlayHideTouchDisplay" xml:space="preserve">
         <value>Touch Display disabled</value>
     </data>
+    <data name="UnableToUseTls" xml:space="preserve">
+        <value>Unable to establish TLS connection to title server, will use plain HTTP instead.</value>
+    </data>
 </root>

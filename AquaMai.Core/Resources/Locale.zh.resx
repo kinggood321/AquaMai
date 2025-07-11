@@ -134,4 +134,7 @@
     <data name="NextPlayHideTouchDisplay" xml:space="preserve">
         <value>已禁用触摸状态显示</value>
     </data>
+    <data name="UnableToUseTls" xml:space="preserve">
+        <value>无法与 Title 服务器建立安全连接，将使用普通 HTTP 代替</value>
+    </data>
 </root>

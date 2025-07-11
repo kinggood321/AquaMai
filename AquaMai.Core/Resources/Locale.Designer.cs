@@ -398,6 +398,15 @@ namespace AquaMai.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to establish TLS connection to title server, will use plain HTTP instead..
+        /// </summary>
+        public static string UnableToUseTls {
+            get {
+                return ResourceManager.GetString("UnableToUseTls", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to UserAll Upsert Error.
         /// </summary>
         public static string UserAllUpsertError {
