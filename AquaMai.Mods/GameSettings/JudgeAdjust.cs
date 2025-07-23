@@ -23,7 +23,7 @@ public class JudgeAdjust
 
     [ConfigEntry(
         en: "Increase touch delay.",
-        zh: "增加触摸延迟")]
+        zh: "增加触摸延迟（不建议使用）")]
     private static readonly uint touchDelay = 0;
 
     [HarmonyPostfix]
