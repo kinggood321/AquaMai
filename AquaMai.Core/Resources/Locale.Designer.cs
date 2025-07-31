@@ -78,6 +78,33 @@ namespace AquaMai.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Adjust the time of the answer sound without modification of other judge timing.
+        /// </summary>
+        public static string GameSettingsDetailMoveAnswerSound {
+            get {
+                return ResourceManager.GetString("GameSettingsDetailMoveAnswerSound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mods.
+        /// </summary>
+        public static string GameSettingsMod {
+            get {
+                return ResourceManager.GetString("GameSettingsMod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Move Answer Sound.
+        /// </summary>
+        public static string GameSettingsNameMoveAnswerSound {
+            get {
+                return ResourceManager.GetString("GameSettingsNameMoveAnswerSound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Loaded!.
         /// </summary>
         public static string Loaded {
@@ -112,6 +139,15 @@ namespace AquaMai.Core.Resources {
         public static string MarkRepeatStart {
             get {
                 return ResourceManager.GetString("MarkRepeatStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ms.
+        /// </summary>
+        public static string MoveAnswerSoundUnit {
+            get {
+                return ResourceManager.GetString("MoveAnswerSoundUnit", resourceCulture);
             }
         }
         

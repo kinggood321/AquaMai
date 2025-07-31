@@ -137,4 +137,16 @@
     <data name="UnableToUseTls" xml:space="preserve">
         <value>无法与 Title 服务器建立安全连接，将使用普通 HTTP 代替</value>
     </data>
+    <data name="GameSettingsMod" xml:space="preserve">
+        <value>Mod 设置</value>
+    </data>
+    <data name="GameSettingsNameMoveAnswerSound" xml:space="preserve">
+        <value>移动正解音</value>
+    </data>
+    <data name="GameSettingsDetailMoveAnswerSound" xml:space="preserve">
+        <value>在不修改其他判定时间的情况下，调整正解音的时间</value>
+    </data>
+    <data name="MoveAnswerSoundUnit" xml:space="preserve">
+        <value> 毫秒</value>
+    </data>
 </root>

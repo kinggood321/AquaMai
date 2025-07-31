@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using AquaMai.Config.Attributes;
+using AquaMai.Core.Helpers;
+using AquaMai.Core.Resources;
+using AquaMai.Core.Types;
 using DB;
 using HarmonyLib;
 using MAI2.Util;
@@ -18,7 +21,7 @@ namespace AquaMai.Mods.Utils;
 [ConfigSection(
     en: "Move answer sound",
     zh: "移动正解音。此设置提供分用户设置，请在游戏内设置中调整偏移量")]
-public class MoveAnswerSound
+public class MoveAnswerSound : IPlayerSettingsItem
 {
     private static float[] userSettings = [0, 0];
 
@@ -26,159 +29,28 @@ public class MoveAnswerSound
 
     public static void OnBeforePatch()
     {
-        var field = typeof(OptionCateGameIDEnum).GetField("records", BindingFlags.NonPublic | BindingFlags.Static);
-        var originRecords = (OptionCateGameTableRecord[])field.GetValue(null);
-        var newRecords = new OptionCateGameTableRecord[8];
-        Array.Copy(originRecords, newRecords, originRecords.Length);
-        newRecords[7] = new OptionCateGameTableRecord(7, "MoveAnswerSound", "移动正解音", "", "在不修改其他判定时间的情况下，调整正解音的时间\n0.1 => 1毫秒", "");
-        field.SetValue(null, newRecords);
+        GameSettingsManager.RegisterSetting(new MoveAnswerSound());
     }
 
-    private static Dictionary<UserOption, int> userOptionToPlayer = new();
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(OptionSelectSequence), nameof(OptionSelectSequence.OnStartSequence))]
-    public static void OnStartSequence(UserOption ____userOption, int ___PlayerIndex)
+    public int Sort => 50;
+    public bool IsLeftButtonActive => true;
+    public bool IsRightButtonActive => true;
+    public string Name => Locale.GameSettingsNameMoveAnswerSound;
+    public string Detail => Locale.GameSettingsDetailMoveAnswerSound;
+    public string SpriteFile => "UI_OPT_E_23_06";
+    public string GetOptionValue(int player)
     {
-        userOptionToPlayer[____userOption] = ___PlayerIndex;
+        return (userSettings[player] == 0 ? GameSettingsManager.DefaultTag : GameSettingsManager.NormalTag) + userSettings[player] + Locale.MoveAnswerSoundUnit;
     }
 
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(OptionSelectSequence), nameof(OptionSelectSequence.OnGameStart))]
-    public static void OnStartSequence(UserOption ____userOption)
+    public void AddOption(int player)
     {
-        userOptionToPlayer.Remove(____userOption);
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(OptionCateGameIDEnum), nameof(OptionCateGameIDEnum.IsValid))]
-    public static bool IsValidOption(ref bool __result, OptionCateGameID self)
-    {
-#if DEBUG
-        MelonLogger.Msg($"[MoveAnswerSound] IsValid {self}");
-        // MelonLogger.Msg(new StackTrace());
-#endif
-        __result = (int)self is >= 0 and < 8;
-        return false;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(OptionCateGameIDEnum), nameof(OptionCateGameIDEnum.FindID))]
-    public static bool FindID(ref OptionCateGameID __result, string enumName)
-    {
-        if (enumName != "MoveAnswerSound") return true;
-        __result = (OptionCateGameID)7;
-        return false;
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(OptionSelectSequence), nameof(OptionSelectSequence.GetCategory))]
-    public static void GetCategory(ref bool isLeftButtonActive, ref bool isRightButtonActive, string __result)
-    {
-        if (__result != "移动正解音") return;
-        isLeftButtonActive = true;
-        isRightButtonActive = true;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(UserOption), "GetOptionName")]
-    private static bool GetOptionName(OptionCategoryID category, int optionIndex, ref string __result)
-    {
-        if (category != OptionCategoryID.GameSetting || optionIndex != 7) return true;
-        __result = "移动正解音";
-        return false;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(UserOption), "GetOptionDetail")]
-    private static bool GetOptionDetail(OptionCategoryID category, int optionIndex, ref string __result)
-    {
-        if (category != OptionCategoryID.GameSetting || optionIndex != 7) return true;
-        __result = "在不修改其他判定时间的情况下，调整正解音的时间";
-        return false;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(UserOption), "GetOptionValueIndex")]
-    private static bool GetOptionValueIndex(OptionCategoryID category, int currentOptionIndex, ref int __result)
-    {
-        if (category != OptionCategoryID.GameSetting || currentOptionIndex != 7) return true;
-        __result = 114514;
-        return false;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(UserOption), "GetOptionMax")]
-    private static bool GetOptionMax(OptionCategoryID category, int currentOptionIndex, ref int __result)
-    {
-        if (category != OptionCategoryID.GameSetting || currentOptionIndex != 7) return true;
-        __result = 1919810;
-        return false;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(UserOption), "GetFilePath")]
-    private static bool GetFilePath(OptionCategoryID category, int currentOptionIndex, ref string __result)
-    {
-        if (category != OptionCategoryID.GameSetting || currentOptionIndex != 7) return true;
-        __result = "UI_OPT_E_23_06";
-        return false;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(UserOption), "GetOptionValue")]
-    private static bool GetOptionValue(OptionCategoryID category, int optionIndex, ref string __result, string ___DefaultTag, string ___NormalTag, UserOption __instance)
-    {
-        if (category != OptionCategoryID.GameSetting || optionIndex != 7) return true;
-        if (!userOptionToPlayer.TryGetValue(__instance, out var player)) return true;
-        __result = $"{(userSettings[player] == 0 ? ___DefaultTag : ___NormalTag)}{userSettings[player]} 毫秒";
-        return false;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(UserOption), "AddOption")]
-    private static bool AddOption(OptionCategoryID category, int currentOptionIndex, UserOption __instance)
-    {
-        if (category != OptionCategoryID.GameSetting || currentOptionIndex != 7) return true;
-        if (!userOptionToPlayer.TryGetValue(__instance, out var player)) return true;
-#if DEBUG
-        MelonLogger.Msg($"[MoveAnswerSound] AddOption {player} {userSettings[player]}");
-#endif
         userSettings[player]++;
-        return false;
     }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(UserOption), "SubOption")]
-    private static bool SubOption(OptionCategoryID category, int currentOptionIndex, UserOption __instance)
+    public void SubOption(int player)
     {
-        if (category != OptionCategoryID.GameSetting || currentOptionIndex != 7) return true;
-        if (!userOptionToPlayer.TryGetValue(__instance, out var player)) return true;
-#if DEBUG
-        MelonLogger.Msg($"[MoveAnswerSound] SubOption {player} {userSettings[player]}");
-#endif
         userSettings[player]--;
-        return false;
-    }
-
-    [HarmonyPatch]
-    public class PatchOptionCategoryIDExcenstion
-    {
-        public static IEnumerable<MethodBase> TargetMethods()
-        {
-            var clas = Assembly.GetAssembly(typeof(GameCtrl)).GetType("Manager.UserDatas.OptionCategoryIDExcenstion");
-            yield return clas.GetMethod("GetCategoryMax");
-        }
-
-        public static bool Prefix(ref int __result, OptionCategoryID category)
-        {
-            if (category == OptionCategoryID.GameSetting)
-            {
-                __result = 8;
-                return false;
-            }
-            return true;
-        }
     }
 
     #endregion

@@ -144,4 +144,16 @@ You can try to solve it yourself. If not, then ask your friends in the community
     <data name="UnableToUseTls" xml:space="preserve">
         <value>Unable to establish TLS connection to title server, will use plain HTTP instead.</value>
     </data>
+    <data name="GameSettingsMod" xml:space="preserve">
+        <value>Mods</value>
+    </data>
+    <data name="GameSettingsNameMoveAnswerSound" xml:space="preserve">
+        <value>Move Answer Sound</value>
+    </data>
+    <data name="GameSettingsDetailMoveAnswerSound" xml:space="preserve">
+        <value>Adjust the time of the answer sound without modification of other judge timing</value>
+    </data>
+    <data name="MoveAnswerSoundUnit" xml:space="preserve">
+        <value>ms</value>
+    </data>
 </root>
