@@ -335,6 +335,19 @@ namespace AquaMai.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Adjusting Screen Area Position
+        ///Currently Adjusting Block: {0}
+        ///Use arrow keys to move the position
+        ///Current Movement Speed: {1} (Press [ or ] to adjust)
+        ///Press {2} to switch block or exit adjustment mode.
+        /// </summary>
+        public static string ScreenPositionAdjustTip {
+            get {
+                return ResourceManager.GetString("ScreenPositionAdjustTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Seek &lt;&lt;.
         /// </summary>
         public static string SeekBackward {

@@ -1,7 +1,10 @@
 using System.Collections.Generic;
 using System.Reflection;
 using AquaMai.Config.Attributes;
+using AquaMai.Config.Types;
 using AquaMai.Core;
+using AquaMai.Core.Helpers;
+using AquaMai.Core.Resources;
 using AquaMai.Mods.GameSystem;
 using HarmonyLib;
 using MelonLoader;
@@ -10,11 +13,17 @@ using UnityEngine.UI;
 
 namespace AquaMai.Mods.Utils;
 
-[ConfigSection]
+[ConfigSection(zh: """
+                   屏幕位置调整。适用于手台对不齐的情况，可以分别调整每个屏幕区域的位置
+                   在游戏中按键开启调整模式
+                   目前开启后不支持使用鼠标模拟触摸
+                   """)]
 public class ScreenPositionAdjust
 {
-    [ConfigEntry]
+    [ConfigEntry(zh: "上屏紧贴着下屏", en: "Top screen is tightly attached to the bottom screen")]
     public static readonly bool compactMode = false;
+    [ConfigEntry(zh: "进入调整模式的按键", en: "Key to enter adjustment mode")]
+    public static readonly KeyCodeOrName adjustKey = KeyCodeOrName.F10;
 
     private static GameObject root;
     // main1P sub1P main2P sub2P
@@ -78,6 +87,81 @@ public class ScreenPositionAdjust
         }
     }
 
+    private static float[] offsetX = new float[4];
+    private static float[] offsetY = new float[4];
+
+    private class AdjustController : MonoBehaviour
+    {
+        private int index = -1;
+        private float speed = 1f;
+
+        private void OnGUI()
+        {
+            if (index == -1) return;
+            var rect = new Rect(0, 0, GuiSizes.FontSize * 50, GuiSizes.FontSize * 15);
+
+            var player = index < 2 ? "1P" : "2P";
+            var sub = index % 2 == 0 ? "Main" : "Sub";
+
+            var labelStyle = GUI.skin.GetStyle("label");
+            labelStyle.fontSize = GuiSizes.FontSize * 2;
+            labelStyle.alignment = TextAnchor.MiddleLeft;
+            GUI.Box(rect, "");
+            GUI.Label(rect, string.Format(Locale.ScreenPositionAdjustTip, $"{player} {sub}", speed, adjustKey));
+        }
+
+        private void Update()
+        {
+            if (KeyListener.GetKeyDown(adjustKey))
+            {
+                index++;
+                if (index > 3)
+                {
+                    index = -1;
+                }
+                if (index == -1)
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        PlayerPrefs.SetFloat($"AquaMaiScreenPositionAdjust-x:{i}", offsetX[i]);
+                        PlayerPrefs.SetFloat($"AquaMaiScreenPositionAdjust-y:{i}", offsetY[i]);
+                    }
+                    PlayerPrefs.Save();
+                    return;
+                }
+            }
+            if (index == -1) return;
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                offsetX[index] -= speed;
+                images[index].localPosition -= new Vector3(speed, 0, 0);
+            }
+            else if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                offsetX[index] += speed;
+                images[index].localPosition += new Vector3(speed, 0, 0);
+            }
+            else if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                offsetY[index] += speed;
+                images[index].localPosition += new Vector3(0, speed, 0);
+            }
+            else if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                offsetY[index] -= speed;
+                images[index].localPosition -= new Vector3(0, speed, 0);
+            }
+            else if (Input.GetKeyDown(KeyCode.LeftBracket))
+            {
+                speed /= 2f;
+            }
+            else if (Input.GetKeyDown(KeyCode.RightBracket))
+            {
+                speed *= 2f;
+            }
+        }
+    }
+
     public static IEnumerable<MethodBase> TargetMethods()
     {
         var lateInitialize = AccessTools.Method(typeof(Main.GameMain), "LateInitialize", [typeof(MonoBehaviour), typeof(Transform), typeof(Transform)]);
@@ -95,6 +179,7 @@ public class ScreenPositionAdjust
         root.AddComponent<CanvasScaler>();
         root.AddComponent<GraphicRaycaster>();
         root.AddComponent<DynamicRenderTextureResizer>();
+        root.AddComponent<AdjustController>();
         Camera.main.gameObject.AddComponent<CameraUpdater>();
         Camera.main.transform.position = new Vector3(ConfigLoader.Config.GetSectionState(typeof(SinglePlayer)).Enabled ? 11451 - 540 : 11451, 19198, -800);
 
@@ -136,6 +221,10 @@ public class ScreenPositionAdjust
             image.rectTransform.sizeDelta = new Vector2(1080, sub == "Main" ? 1080 : 450);
             image.transform.localPosition = new Vector3(player == "1P" ? -540 : 540, sub == "Main" ? -420 + compactDelta : 735 - compactDelta, 0);
             images[i] = image.transform;
+
+            offsetX[i] = PlayerPrefs.GetFloat($"AquaMaiScreenPositionAdjust-x:{i}", 0);
+            offsetY[i] = PlayerPrefs.GetFloat($"AquaMaiScreenPositionAdjust-y:{i}", 0);
+            images[i].localPosition += new Vector3(offsetX[i], offsetY[i], 0);
         }
     }
 }

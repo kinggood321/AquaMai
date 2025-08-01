@@ -27,6 +27,7 @@
   - Tweaks.TimeSaving.SkipGoodbyeScreen
   - Tweaks.TimeSaving.IWontTapOrSlideVigorously
   - UX.QuickEndPlay
+  - GameSystem.AddPlayCountWhenQuickRetry
 
 美化:
   - GameSystem.Assets.Fonts
@@ -51,29 +52,31 @@
   - UX.DisableLightOutGame
   - Fancy.GamePlay.HideHanabi
   - Fancy.GamePlay.JudgeDisplay4B
+  - Utils.DisplayTouchInGame
+
+系统修改:
+  - GameSystem.Window
+  - Utils.ScreenPositionAdjust
+  - GameSettings.JudgeAdjust
   - Fancy.Triggers
+
+调试工具:
+  - Utils.AntiLag
+  - Tweaks.IgnoreAimeServerError
+  - Utils.ShowNetErrorDetail
+  - Tweaks.LockFrameRate
+  - Tweaks.ResetTouch
+  - Utils.DisplayFrameRate
+  - Utils.LogUserId
+  - Utils.LogNetworkRequests
+  - Utils.ShowErrorLog
+  - UX.NoAmDaemonAlert
 
 键位和灵敏度:
   - GameSystem.HidInput
   - GameSystem.AdxHidInput
   - GameSystem.KeyMap
   - GameSettings.TouchSensitivity
-
-调试:
-  - GameSystem.Window
-  - Utils.AntiLag
-  - Utils.DisplayTouchInGame
-  - GameSettings.JudgeAdjust
-  - Tweaks.IgnoreAimeServerError
-  - Utils.ShowNetErrorDetail
-  - Tweaks.LockFrameRate
-  - Tweaks.ResetTouch
-  - Tweaks.SkipUserVersionCheck
-  - Utils.DisplayFrameRate
-  - Utils.LogUserId
-  - Utils.LogNetworkRequests
-  - Utils.ShowErrorLog
-  - UX.NoAmDaemonAlert
 
 高级设置:
   - Fancy.HideMask
@@ -85,6 +88,7 @@
   - GameSystem.CustomCameraId
   - GameSystem.OptionLoadFix
   - UX.ServerAnnouncement
+  - Tweaks.SkipUserVersionCheck
 
 过新过热:
   - Fancy.CustomTrackStartDiff
@@ -94,4 +98,4 @@
   - Fancy.GamePlay.FanJudgeFlip
   - Fancy.GamePlay.RealisticRandomJudge
   - Fancy.GamePlay.TrackStartProcessTweak
-  - Fancy.GamePlay.JudgeTouchHoldInNormalArea
+  - Fancy.GamePlay.FixJudgeTouchHoldInNormalArea

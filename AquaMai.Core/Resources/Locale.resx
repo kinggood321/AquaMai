@@ -156,4 +156,11 @@ You can try to solve it yourself. If not, then ask your friends in the community
     <data name="MoveAnswerSoundUnit" xml:space="preserve">
         <value>ms</value>
     </data>
+    <data name="ScreenPositionAdjustTip" xml:space="preserve">
+        <value>Adjusting Screen Area Position
+Currently Adjusting Block: {0}
+Use arrow keys to move the position
+Current Movement Speed: {1} (Press [ or ] to adjust)
+Press {2} to switch block or exit adjustment mode</value>
+    </data>
 </root>

@@ -149,4 +149,11 @@
     <data name="MoveAnswerSoundUnit" xml:space="preserve">
         <value> 毫秒</value>
     </data>
+    <data name="ScreenPositionAdjustTip" xml:space="preserve">
+        <value>正在调整屏幕区域位置
+当前正在调整的区块：{0}
+使用方向键移动位置
+当前移动速度：{1}，按下 [ 或 ] 键调整移动速度
+按下 {2} 切换调整的区块和退出调整模式</value>
+    </data>
 </root>
