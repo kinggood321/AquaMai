@@ -6,6 +6,7 @@ using AquaMai.Core.Attributes;
 using AquaMai.Config.Attributes;
 using AquaMai.Core.Helpers;
 using AquaMai.Mods.Fancy.GamePlay;
+using AquaMai.Mods.Utils;
 using HarmonyLib;
 using MAI2.Util;
 using Manager;
@@ -51,6 +52,7 @@ public partial class SinglePlayer
 
         public static void Prefix(MonoBehaviour gameMainObject, ref Transform left, ref Transform right)
         {
+            if (ConfigLoader.Config.GetSectionState(typeof(ScreenPositionAdjust)).Enabled) return;
             Vector3 position = Camera.main.gameObject.transform.position;
             var yOffset = 0f;
             if (HideSubMonitor)
